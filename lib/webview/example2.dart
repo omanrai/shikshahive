@@ -46,6 +46,7 @@ class _WebExampleTwoState extends State<WebExampleTwo> {
   void initState() {
     super.initState();
     pullToRefreshController = PullToRefreshController(
+      
       options: PullToRefreshOptions(color: Colors.blue),
       onRefresh: () async {
         if (Platform.isAndroid) {
@@ -67,13 +68,13 @@ class _WebExampleTwoState extends State<WebExampleTwo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tect With hanger"),
+        title: const Text("Tect With hanger"),
         centerTitle: true,
         elevation: 0,
         actions: [
           IconButton(
             onPressed: () => _webViewController?.reload(),
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
           ),
         ],
       ),
@@ -155,29 +156,29 @@ class _WebExampleTwoState extends State<WebExampleTwo> {
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.green[800]!),
                         )
-                      : Center(),
+                      : const Center(),
                 ],
               ),
             ),
             ButtonBar(
               buttonAlignedDropdown: true,
-              buttonPadding: EdgeInsets.all(2),
+              buttonPadding: const EdgeInsets.all(2),
               alignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 ElevatedButton(
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                   onPressed: () {
                     _webViewController?.goBack();
                   },
                 ),
                 ElevatedButton(
-                  child: Icon(Icons.arrow_forward),
+                  child: const Icon(Icons.arrow_forward),
                   onPressed: () {
                     _webViewController?.goForward();
                   },
                 ),
                 ElevatedButton(
-                  child: Icon(Icons.refresh),
+                  child: const Icon(Icons.refresh),
                   onPressed: () {
                     _webViewController?.reload();
                   },

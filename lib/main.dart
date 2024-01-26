@@ -17,6 +17,8 @@ Future<void> main() async {
   await Permission.storage.request();
   await Permission.mediaLibrary.request();
   // ask for storage permission on app create
+  await Permission.camera.request();
+  await Permission.microphone.request();
 
   runApp(MyApp());
 }
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TechWithSam - Flutter Webview Tutorial',
+      title: 'Flutter Webview Example',
       theme: ThemeData(
           primarySwatch: Colors.blue, visualDensity: VisualDensity.standard),
       debugShowCheckedModeBanner: false,
