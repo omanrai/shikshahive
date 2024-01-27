@@ -16,6 +16,7 @@ class _WebView6State extends State<WebView6> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..addJavaScriptChannel(
