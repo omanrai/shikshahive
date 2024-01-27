@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -69,23 +71,27 @@ class _WebExampleTwoState extends State<WebExampleTwo> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        return (await showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Do you want to exit?'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Confirm'),
-                  ),
-                ],
-              ),
-            )) ??
-            false;
+        if (await _webViewController?.canGoBack() ?? false) {
+          _webViewController?.goBack();
+          return false;
+        } else {
+          return await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Do you want to exit?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Confirm'),
+                ),
+              ],
+            ),
+          );
+        }
       },
       child: Scaffold(
         appBar: AppBar(
