@@ -16,7 +16,7 @@ class _WebView6State extends State<WebView6> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    
+
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..addJavaScriptChannel(
@@ -60,6 +60,24 @@ class _WebView6State extends State<WebView6> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        bottomNavigationBar: Container(
+          color: Colors.black45,
+          child: Row(
+            children: [
+              Text("This page looks better in the app"),
+              Spacer(),
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                highlightColor: Colors.amber,
+                splashColor: Colors.green,
+                onTap: () {
+                  //download apk
+                },
+                child: Text("Open"),
+              )
+            ],
+          ),
+        ),
         appBar: AppBar(
           title: const Text("Shiksha hive"),
           actions: [
