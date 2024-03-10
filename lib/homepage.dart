@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'check_internet.dart';
-
 import 'webview/example3.dart';
 import 'webview/example6.dart';
 
@@ -105,8 +105,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  void _launchURL() async => await canLaunchUrl(Uri.parse(_url))
-      ? await launchUrl(Uri.parse(_url))
-      : throw 'Could not launch $_url';
 }
