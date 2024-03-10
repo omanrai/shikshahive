@@ -3,11 +3,8 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'check_internet.dart';
-import 'webview/example1.dart';
-import 'webview/example2.dart';
+
 import 'webview/example3.dart';
-import 'webview/example4.dart';
-import 'webview/example5.dart';
 import 'webview/example6.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   final WebExampleThree inAppBrowser = WebExampleThree();
-  final WebExampleFour inAppChrome = WebExampleFour();
+
   final String _url = "https://shikshahive.com/";
   int checkInt = 0;
 
@@ -59,22 +56,6 @@ class _HomePageState extends State<HomePage> {
         ));
       }
     });
-    inAppChrome.addMenuItem(ChromeSafariBrowserMenuItem(
-      id: 1,
-      label: 'Example 1',
-      action: (title, url) {
-        print(title);
-        print(url);
-      },
-    ));
-    inAppChrome.addMenuItem(ChromeSafariBrowserMenuItem(
-      id: 2,
-      label: 'Example 2',
-      action: (title, url) {
-        print(title);
-        print(url);
-      },
-    ));
   }
 
   @override
@@ -82,7 +63,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Flutter Webview Tutorial'),
+        title: const Text('ShikshaHive Webview Tutorial'),
         centerTitle: true,
         elevation: 0,
       ),
@@ -90,40 +71,6 @@ class _HomePageState extends State<HomePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              MaterialButton(
-                color: Colors.amber,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 12),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => WebExampleOne(),
-                      ));
-                },
-                child: const Text(
-                  'Example 1',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 12),
-              MaterialButton(
-                color: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 12),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => WebExampleTwo(url: _url),
-                      ));
-                },
-                child: const Text(
-                  'Example 2',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 12),
               MaterialButton(
                 color: Colors.purple[700],
                 padding:
@@ -135,46 +82,6 @@ class _HomePageState extends State<HomePage> {
                 },
                 child: const Text(
                   'Example 3',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 12),
-              MaterialButton(
-                color: Colors.pink[900],
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 12),
-                onPressed: () {
-                  checkInt == 1
-                      ? inAppChrome.open(
-                          url: Uri.parse(_url),
-                          options: ChromeSafariBrowserClassOptions(
-                            android: AndroidChromeCustomTabsOptions(
-                                addDefaultShareMenuItem: false),
-                            ios: IOSSafariOptions(barCollapsingEnabled: true),
-                          ),
-                        )
-                      : ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('No internet connection!'),
-                          ),
-                        );
-                },
-                child: const Text(
-                  'Example 4',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 12),
-              MaterialButton(
-                color: Colors.yellow[900],
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 12),
-                onPressed: () {
-                  // Navigator.of(context).push(MaterialPageRoute(
-                  //     builder: (context) => WebExampleFive(url: _url)));
-                },
-                child: const Text(
-                  'Example 05',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
