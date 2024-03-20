@@ -22,15 +22,22 @@ class _HomePageState extends State<HomePage> {
   int checkInt = 0;
 
   var options = InAppBrowserClassOptions(
+    
     crossPlatform: InAppBrowserOptions(
         hideUrlBar: false, toolbarTopBackgroundColor: Colors.amber),
+        
     inAppWebViewGroupOptions: InAppWebViewGroupOptions(
       crossPlatform: InAppWebViewOptions(
+        
         javaScriptEnabled: true,
         cacheEnabled: true,
         transparentBackground: true,
       ),
+      android: AndroidInAppWebViewOptions(
+        
+      )
     ),
+
   );
 
   @override

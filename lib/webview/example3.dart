@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class WebExampleThree extends InAppBrowser {
   @override
+  // TODO: implement pullToRefreshController
+  @override
   Future onBrowserCreated() async {
     print("Browser Created!");
   }
@@ -27,6 +29,8 @@ class WebExampleThree extends InAppBrowser {
     print("Progress: $progress");
   }
 
+  
+
   @override
   Future<NavigationActionPolicy?>? shouldOverrideUrlLoading(
       NavigationAction action) async {
@@ -35,8 +39,8 @@ class WebExampleThree extends InAppBrowser {
       if (uri.host.contains("facebook.com") ||
           uri.host.contains("linkedin.com") ||
           uri.host.contains("gmail.com")) {
-        if (await canLaunch(uri.toString())) {
-          await launch(uri.toString());
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
           return NavigationActionPolicy.CANCEL;
         }
       }
