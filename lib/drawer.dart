@@ -16,6 +16,7 @@ class DrawerComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      key: _scaffoldKey,
       child: Column(
         children: [
           Expanded(
@@ -63,7 +64,7 @@ class DrawerComponent extends StatelessWidget {
                             0,
                           ),
                           child: Image.asset(
-                            "images/app-logo.png",
+                            "assets/app_logo.png",
                           ),
                         ),
                       ),

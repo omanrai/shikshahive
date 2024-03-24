@@ -2,12 +2,17 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshahive/const.dart';
+import 'package:shikshahive/custom_button_sheet.dart';
 import 'package:shikshahive/drawer.dart';
 import 'package:shikshahive/pdf_viewer.dart';
 import 'package:shikshahive/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'error_container.dart';
 
 class ShikshaHiveHome extends StatefulWidget {
   const ShikshaHiveHome({super.key});
@@ -25,11 +30,11 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
         useShouldOverrideUrlLoading: true,
         mediaPlaybackRequiresUserGesture: false,
         useOnLoadResource: false,
-        
+        javaScriptEnabled: true,
       ),
-      
       android: AndroidInAppWebViewOptions(
         useHybridComposition: true,
+        domStorageEnabled: true,
       ),
       ios: IOSInAppWebViewOptions(
         allowsInlineMediaPlayback: true,
@@ -48,6 +53,8 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
   int? errorCode;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String? _sessionId;
 
   @override
   void initState() {
@@ -99,196 +106,149 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
             ],
           ),
         );
-        if (confirmed == true) Navigator.pop(context);
+        if (confirmed == true)
+          SystemNavigator.pop(
+            animated: true,
+          );
       },
       child: Scaffold(
+          key: scaffoldKey,
           appBar: AppBar(
-            
             leading: canGoBack
                 ? IconButton(
                     onPressed: () => webViewController?.goBack(),
                     icon: const Icon(Icons.arrow_back))
                 : IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.density_medium)),
+                    onPressed: () {
+                      scaffoldKey.currentState?.openDrawer();
+                    },
+                    icon: const Icon(Icons.home)),
             backgroundColor: const Color(0xFF0a6bc7),
             foregroundColor: Colors.white,
-            
-            title:
-                title=="Web page not available" ? const Text("Error while connecting") : Text(title),
-            titleTextStyle:
-                const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            title: title == "Web page not available"
+                ? const Text("Error while connecting")
+                : Text(title),
+            titleTextStyle: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
             centerTitle: true,
-
           ),
-          drawer: url == PRIMARY_DOMAIN?DrawerComponent(scaffoldKey: scaffoldKey,):null,
+          // drawer: url == PRIMARY_DOMAIN
+          //     ? DrawerComponent(
+          //         scaffoldKey: scaffoldKey,
+          //       )
+          //     : null,
           body: Column(children: <Widget>[
-                      // TextField(
-                      //   decoration: InputDecoration(
-                      //       prefixIcon: Icon(Icons.search)
-                      //   ),
-                      //   controller: urlController,
-                      //   keyboardType: TextInputType.url,
-                      //   onSubmitted: (value) {
-                      //     var url = Uri.parse(value);
-                      //     if (url.scheme.isEmpty) {
-                      //       url = Uri.parse("https://www.google.com/search?q=" + value);
-                      //     }
-                      //     webViewController?.loadUrl(
-                      //         urlRequest: URLRequest(url: url));
-                      //   },
-                      // ),
-                      Expanded(
-          child: Stack(
-            children: [
-              InAppWebView(
-                key: webViewKey,
-                initialUrlRequest:
-                    URLRequest(url: Uri.parse("https://shikshahive.com/")),
-                initialOptions: options,
-                pullToRefreshController: pullToRefreshController,
-                onWebViewCreated: (controller) {
-                  webViewController = controller;
-                },
-                onLoadStart:onLoadStart,
-              onLongPressHitTestResult: (controller, hitTestResult) {
-                log("Hit result: $hitTestResult");
-              },
-                androidOnPermissionRequest:
-                    (controller, origin, resources) async {
-                  return PermissionRequestResponse(
-                      resources: resources,
-                      action: PermissionRequestResponseAction.GRANT);
-                },
-                onTitleChanged: (controller, title) {
-                  setState(() {
-                    this.title = title ?? "Shiksha Hive";
-                  });
-                },
-                shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-                onLoadStop: onLoadStop,
-                onLoadError: (controller, url, code, message) {
-                  setState(() {
-                    hasError = true;
-                    errorCode = code;
-                  });
-                  pullToRefreshController.endRefreshing();
-                },
-                onProgressChanged: onProgressChanged,
-                onLoadResource: (controller, resource) {
-                  log(resource.url.toString());
-                },
-                onDownloadStartRequest: (controller, downloadStartRequest) {
-                  if (isDownloadUrl(downloadStartRequest.url)) {
-                    launchUrl(downloadStartRequest.url);
-                  }
-                },
-                onUpdateVisitedHistory: onUpdateVisitedHistory,
-                onConsoleMessage: (controller, consoleMessage) {
-                  print(consoleMessage);
-                },
+            // TextField(
+            //   decoration: InputDecoration(
+            //       prefixIcon: Icon(Icons.search)
+            //   ),
+            //   controller: urlController,
+            //   keyboardType: TextInputType.url,
+            //   onSubmitted: (value) {
+            //     var url = Uri.parse(value);
+            //     if (url.scheme.isEmpty) {
+            //       url = Uri.parse("https://www.google.com/search?q=" + value);
+            //     }
+            //     webViewController?.loadUrl(
+            //         urlRequest: URLRequest(url: url));
+            //   },
+            // ),
+            Expanded(
+              child: Stack(
+                children: [
+                  InAppWebView(
+                    key: webViewKey,
+                    initialUrlRequest:
+                        URLRequest(url: Uri.parse("https://shikshahive.com/")),
+                    initialOptions: options,
+                    pullToRefreshController: pullToRefreshController,
+                    onWebViewCreated: (controller) {
+                      webViewController = controller;
+                    },
+                    onLoadStart: onLoadStart,
+                    onLongPressHitTestResult: onLongPressHitTestResult,
+                    androidOnPermissionRequest: androidOnPermissionRequest,
+                    onTitleChanged: onTitleChanged,
+                    shouldOverrideUrlLoading: shouldOverrideUrlLoading,
+                    onLoadStop: onLoadStop,
+                    onLoadError: (controller, url, code, message) {
+                      setState(() {
+                        hasError = true;
+                        errorCode = code;
+                      });
+                      pullToRefreshController.endRefreshing();
+                    },
+                    onProgressChanged: onProgressChanged,
+                    onLoadResource: (controller, resource) {
+                      log(resource.url.toString());
+                    },
+                    onDownloadStartRequest: (controller, downloadStartRequest) {
+                      if (isDownloadUrl(downloadStartRequest.url)) {
+                        launchUrl(downloadStartRequest.url);
+                      }
+                    },
+                    onUpdateVisitedHistory: onUpdateVisitedHistory,
+                    // onConsoleMessage: (controller, consoleMessage) {
+                    //   print(consoleMessage);
+                   
+                    // },
+                  ),
+                  if (progress < 1) CustomProgressIndicator(progress: progress),
+
+                  if (hasError)
+                    ErrorContainer(webViewController: webViewController),
+                  // progress < 1.0
+                  //     ? LinearProgressIndicator(value: progress,color: PRIMATY_COLOR,)
+                  //     :const SizedBox.shrink(),
+                ],
               ),
-              if (progress < 1)
-                Container(
-                  color: Colors.white,
-                  alignment: Alignment.center,
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        color: Color(0xFF0a6bc7),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "Please Wait",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-          
-              if (hasError)
-                Container(
-                  color: Colors.white,
-                  alignment: Alignment.center,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          webViewController!.reload();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: PRIMATY_COLOR,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text("Refresh"),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text(
-                        "error occured",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              progress < 1.0
-                  ? LinearProgressIndicator(value: progress,color: PRIMATY_COLOR,)
-                  :const SizedBox.shrink(),
-            ],
-          ),
-                      ),
-                      // ButtonBar(
-                      //   alignment: MainAxisAlignment.center,
-                      //   children: <Widget>[
-                      //     ElevatedButton(
-                      //       child: Icon(Icons.arrow_back),
-                      //       onPressed: () {
-                      //         webViewController?.goBack();
-                      //       },
-                      //     ),
-                      //     ElevatedButton(
-                      //       child: Icon(Icons.arrow_forward),
-                      //       onPressed: () {
-                      //         webViewController?.goForward();
-                      //       },
-                      //     ),
-                      //     ElevatedButton(
-                      //       child: Icon(Icons.refresh),
-                      //       onPressed: () {
-                      //         webViewController?.reload();
-                      //       },
-                      //     ),
-                      //   ],
-                      // ),
-                    ])),
+            ),
+          ])),
     );
+  }
+
+  void onLongPressHitTestResult(InAppWebViewController controller,
+      InAppWebViewHitTestResult hitTestResult) {
+    log("Hit result: $hitTestResult");
+    if (hitTestResult.extra == null) return;
+
+    if (hitTestResult.extra!.startsWith("https://shikshahive.com/assets/"))
+      return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => CustomButtonSheet(hitTestResult.extra!, controller),
+    );
+  }
+
+  Future<PermissionRequestResponse?> androidOnPermissionRequest(
+      controller, origin, resources) async {
+    return PermissionRequestResponse(
+        resources: resources, action: PermissionRequestResponseAction.GRANT);
+  }
+
+  void onTitleChanged(controller, title) {
+    setState(() {
+      this.title = title ?? "Shiksha Hive";
+    });
   }
 
   final List<String> allowedExternalDomains = [
     "https://www.facebook.com",
     "https://www.linkedin.com",
-    "mailto:"
+    "https://neb.ntc.net.np",
   ];
 
   bool _shouldOpenExternally(Uri uri) {
+    log("Opening externally $uri");
     return allowedExternalDomains
         .any((domain) => uri.toString().startsWith(domain));
   }
 
   bool _isEmail(Uri uri) {
-    return uri.toFilePath().startsWith("mailto:");
+    return uri.toString().startsWith("mailto:");
   }
 
   bool isDownloadUrl(Uri uri) {
@@ -309,9 +269,7 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
   Future<NavigationActionPolicy?> shouldOverrideUrlLoading(
       InAppWebViewController controller,
       NavigationAction navigationAction) async {
-    log("Navigation action $navigationAction");
     var uri = navigationAction.request.url!;
-    log("URI: $uri");
     if (isDownloadUrl(uri)) {
       Navigator.push(
         context,
@@ -321,9 +279,13 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       );
       return NavigationActionPolicy.CANCEL;
     }
-    log("is download url");
-    if (_shouldOpenExternally(uri) || _isEmail(uri)) {
-      await Utils.launchUrlToExternalApplication(url);
+    if (_shouldOpenExternally(uri)) {
+      await Utils.launchSafariChrome(uri.toString());
+      return NavigationActionPolicy.CANCEL;
+    }
+
+    if (_isEmail(uri)) {
+      await launchUrl(uri);
       return NavigationActionPolicy.CANCEL;
     }
 
@@ -349,24 +311,86 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
     });
   }
 
-  void onLoadStart (InAppWebViewController controller,Uri? url) {
-                      log("Loading started ==> $url");
-                      setState(() {
-                        hasError = false;
-                        errorCode = null;
-                        this.url = url.toString();
-                        urlController.text = this.url;
-                      });
-                    }
+  void onLoadStart(InAppWebViewController controller, Uri? url) {
+    log("Loading started ==> $url");
+    setState(() {
+      hasError = false;
+      errorCode = null;
+      this.url = url.toString();
+      urlController.text = this.url;
+    });
+  }
 
-                    void onLoadStop(controller, url) async {
-                      pullToRefreshController.endRefreshing();
-                      final canGoBack = await controller.canGoBack();
-                      setState(() {
-                        this.url = url.toString();
-                        urlController.text = this.url;
-                        this.canGoBack = canGoBack;
-                      });
-                      progress = 1;
-                    }
+  void onLoadStop(InAppWebViewController controller, Uri? url) async {
+    pullToRefreshController.endRefreshing();
+    final canGoBack = await controller.canGoBack();
+
+    setState(() {
+      this.url = url.toString();
+      urlController.text = this.url;
+      this.canGoBack = canGoBack;
+    });
+    progress = 1;
+    _getSessionID(controller);
+  }
+
+// Assuming you have an initialized InAppWebViewController
+  Future<void> _getSessionID(InAppWebViewController controller) async {
+    final sessionID =
+        await controller.evaluateJavascript(source: 'document.cookie');
+    print('Session ID: $sessionID');
+    final xsrfToken = Utils.parseXSRFTokenFromCookie(sessionID);
+    log(xsrfToken);
+  }
+
+  Future<void> _loadSessionID() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedSessionID = prefs.getString('session_id');
+    setState(() {
+      _sessionId = storedSessionID;
+    });
+  }
+
+  Future<void> _setSessionIDCookie() async {
+    await webViewController?.evaluateJavascript(
+      source: 'document.cookie = "session_id=$_sessionId";',
+    );
+  }
+}
+
+class CustomProgressIndicator extends StatelessWidget {
+  const CustomProgressIndicator({
+    super.key,
+    required this.progress,
+  });
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      alignment: Alignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: const Color(0xFF0a6bc7),
+            value: progress,
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          const Text(
+            "Please Wait",
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
