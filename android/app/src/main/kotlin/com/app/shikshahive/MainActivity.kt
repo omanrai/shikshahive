@@ -1,4 +1,4 @@
-package com.example.shikshahive
+package com.app.shikshahive
 
 import io.flutter.embedding.android.FlutterActivity
 

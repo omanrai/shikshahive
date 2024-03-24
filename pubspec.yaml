@@ -30,7 +30,6 @@ environment:
 dependencies:
   connectivity_plus: ^1.0.6
   cupertino_icons: ^1.0.1
-  dev: ^1.0.0
   flutter:
     sdk: flutter
   # flutter_downloader: ^1.6.1
