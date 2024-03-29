@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:shikshahive/const.dart';
+import 'package:shikshahive/config/const.dart';
 
 class ErrorContainer extends StatelessWidget {
   const ErrorContainer({

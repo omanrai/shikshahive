@@ -4,13 +4,18 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shikshahive/inapp_webview.dart';
-import 'package:shikshahive/intro.dart';
+import 'package:shikshahive/config/const.dart';
+import 'package:shikshahive/config/routes.dart';
+import 'package:shikshahive/config/uni_services.dart';
+import 'package:shikshahive/screens/shiksha_hive_home.dart';
+import 'package:shikshahive/screens/intro.dart';
 
 import 'homepage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  UniServices.init();
 
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
@@ -32,9 +37,10 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       theme: ThemeData(
         visualDensity: VisualDensity.standard,
+        
         primarySwatch: const MaterialColor(0xff0A6BC7, {
           50: Color(0xff0A6BC7),
           100: Color.fromARGB(255, 10, 107, 199),
@@ -49,7 +55,9 @@ class MyApp extends StatelessWidget {
         }),
       ),
       debugShowCheckedModeBanner: false,
-      home: Intro(),
+      color: PRIMATY_COLOR,
+      // home: Intro(),
+      routerConfig: MyRoutes.route,
     );
   }
 }

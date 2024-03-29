@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shikshahive/inapp_webview.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shikshahive/screens/shiksha_hive_home.dart';
 
 class Intro extends StatefulWidget {
   const Intro({super.key});
@@ -15,11 +16,7 @@ class _IntroState extends State<Intro> {
   void initState() {
     Future.delayed(
       const Duration(seconds: 5),
-      () => Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ShikshaHiveHome(),
-          )),
+      () => context.goNamed("web"),
     );
     super.initState();
   }

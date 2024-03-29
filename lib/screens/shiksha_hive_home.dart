@@ -4,18 +4,21 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shikshahive/const.dart';
+import 'package:shikshahive/config/const.dart';
+import 'package:shikshahive/config/routes.dart';
 import 'package:shikshahive/custom_button_sheet.dart';
 import 'package:shikshahive/drawer.dart';
-import 'package:shikshahive/pdf_viewer.dart';
+import 'package:shikshahive/screens/pdf_viewer.dart';
 import 'package:shikshahive/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'error_container.dart';
+import '../error_container.dart';
 
 class ShikshaHiveHome extends StatefulWidget {
-  const ShikshaHiveHome({super.key});
+  final String? initialRoute;
+  const ShikshaHiveHome(this.initialRoute, {super.key});
 
   @override
   State<ShikshaHiveHome> createState() => _ShikshaHiveHomeState();
@@ -26,19 +29,20 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
 
   InAppWebViewController? webViewController;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
-      crossPlatform: InAppWebViewOptions(
-        useShouldOverrideUrlLoading: true,
-        mediaPlaybackRequiresUserGesture: false,
-        useOnLoadResource: false,
-        javaScriptEnabled: true,
-      ),
-      android: AndroidInAppWebViewOptions(
-        useHybridComposition: true,
-        domStorageEnabled: true,
-      ),
-      ios: IOSInAppWebViewOptions(
-        allowsInlineMediaPlayback: true,
-      ));
+    crossPlatform: InAppWebViewOptions(
+      useShouldOverrideUrlLoading: true,
+      mediaPlaybackRequiresUserGesture: false,
+      useOnLoadResource: false,
+      javaScriptEnabled: true,
+    ),
+    android: AndroidInAppWebViewOptions(
+      useHybridComposition: true,
+      domStorageEnabled: true,
+    ),
+    ios: IOSInAppWebViewOptions(
+      allowsInlineMediaPlayback: true,
+    ),
+  );
 
   late PullToRefreshController pullToRefreshController;
   String url = "";
@@ -82,140 +86,134 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) async {
-        if (await webViewController?.canGoBack() == true) {
-          webViewController?.goBack();
-          return;
-        }
-
-        var confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Do you want to exit?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Confirm'),
-              ),
-            ],
+    return Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          leading: canGoBack
+              ? IconButton(
+                  onPressed: () => webViewController?.goBack(),
+                  icon: const Icon(Icons.arrow_back))
+              : IconButton(
+                  onPressed: () {
+                    scaffoldKey.currentState?.openDrawer();
+                  },
+                  icon: const Icon(Icons.home)),
+          backgroundColor: const Color(0xFF0a6bc7),
+          foregroundColor: Colors.white,
+          title: title == "Web page not available"
+              ? const Text("Error while connecting")
+              : Text(title),
+          titleTextStyle: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
           ),
-        );
-        if (confirmed == true)
-          SystemNavigator.pop(
-            animated: true,
-          );
-      },
-      child: Scaffold(
-          key: scaffoldKey,
-          appBar: AppBar(
-            leading: canGoBack
-                ? IconButton(
-                    onPressed: () => webViewController?.goBack(),
-                    icon: const Icon(Icons.arrow_back))
-                : IconButton(
-                    onPressed: () {
-                      scaffoldKey.currentState?.openDrawer();
-                    },
-                    icon: const Icon(Icons.home)),
-            backgroundColor: const Color(0xFF0a6bc7),
-            foregroundColor: Colors.white,
-            title: title == "Web page not available"
-                ? const Text("Error while connecting")
-                : Text(title),
-            titleTextStyle: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-            centerTitle: true,
-          ),
-          // drawer: url == PRIMARY_DOMAIN
-          //     ? DrawerComponent(
-          //         scaffoldKey: scaffoldKey,
-          //       )
-          //     : null,
-          body: Column(children: <Widget>[
-            // TextField(
-            //   decoration: InputDecoration(
-            //       prefixIcon: Icon(Icons.search)
-            //   ),
-            //   controller: urlController,
-            //   keyboardType: TextInputType.url,
-            //   onSubmitted: (value) {
-            //     var url = Uri.parse(value);
-            //     if (url.scheme.isEmpty) {
-            //       url = Uri.parse("https://www.google.com/search?q=" + value);
-            //     }
-            //     webViewController?.loadUrl(
-            //         urlRequest: URLRequest(url: url));
-            //   },
-            // ),
-            Expanded(
-              child: Stack(
-                children: [
-                  InAppWebView(
-                    key: webViewKey,
-                    initialUrlRequest:
-                        URLRequest(url: Uri.parse("https://shikshahive.com/")),
-                    initialOptions: options,
-                    pullToRefreshController: pullToRefreshController,
-                    onWebViewCreated: (controller) {
-                      webViewController = controller;
-                    },
-                    onLoadStart: onLoadStart,
-                    onLongPressHitTestResult: onLongPressHitTestResult,
-                    androidOnPermissionRequest: androidOnPermissionRequest,
-                    onTitleChanged: onTitleChanged,
-                    shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-                    onLoadStop: onLoadStop,
-                    onLoadError: (controller, url, code, message) {
-                      setState(() {
-                        hasError = true;
-                        errorCode = code;
-                      });
-                      pullToRefreshController.endRefreshing();
-                    },
-                    onProgressChanged: onProgressChanged,
-                    onLoadResource: (controller, resource) {
-                      log(resource.url.toString());
-                    },
-                    onDownloadStartRequest: (controller, downloadStartRequest) {
-                      if (isDownloadUrl(downloadStartRequest.url)) {
-                        launchUrl(downloadStartRequest.url);
-                      }
-                    },
-                    onUpdateVisitedHistory: onUpdateVisitedHistory,
-                    // onConsoleMessage: (controller, consoleMessage) {
-                    //   print(consoleMessage);
-                   
-                    // },
+          centerTitle: true,
+        ),
+        // drawer: url == PRIMARY_DOMAIN
+        //     ? DrawerComponent(
+        //         scaffoldKey: scaffoldKey,
+        //       )
+        //     : null,
+        body: Column(children: <Widget>[
+          // TextField(
+          //   decoration: InputDecoration(
+          //       prefixIcon: Icon(Icons.search)
+          //   ),
+          //   controller: urlController,
+          //   keyboardType: TextInputType.url,
+          //   onSubmitted: (value) {
+          //     var url = Uri.parse(value);
+          //     if (url.scheme.isEmpty) {
+          //       url = Uri.parse("https://www.google.com/search?q=" + value);
+          //     }
+          //     webViewController?.loadUrl(
+          //         urlRequest: URLRequest(url: url));
+          //   },
+          // ),
+          Expanded(
+            child: Stack(
+              children: [
+                InAppWebView(
+                  key: webViewKey,
+                  initialUrlRequest: URLRequest(
+                    url: Uri.parse(PRIMARY_DOMAIN),
                   ),
-                  if (progress < 1) CustomProgressIndicator(progress: progress),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                    MyRoutes.webViewController = controller;
+                    if (widget.initialRoute != null) {
+                      // if user has link from deep link path
+                      // controller.goTo(
+                      //   historyItem: WebHistoryItem(
+                      //     originalUrl: Uri.parse(
+                      //         "$PRIMARY_DOMAIN${widget.initialRoute}"),
+                      //   ),
+                      // );
+                      controller.loadUrl(
+                        urlRequest: URLRequest(
+                          url: Uri.parse(
+                              "$PRIMARY_DOMAIN${widget.initialRoute}"),
+                        ),
+                      );
+                    }
+                  },
+                  onLoadHttpError: (controller, url, statusCode, description) {
+                    setState(() {
+                      statusCode = statusCode;
+                    });
+                    _webViewLog(
+                        "Status: $statusCode Description: $description Url: $url");
+                  },
+                  onLoadStart: onLoadStart,
+                  onLongPressHitTestResult: onLongPressHitTestResult,
+                  androidOnPermissionRequest: androidOnPermissionRequest,
+                  onTitleChanged: onTitleChanged,
+                  shouldOverrideUrlLoading: shouldOverrideUrlLoading,
+                  onLoadStop: onLoadStop,
+                  onLoadError: (controller, url, code, message) {
+                    setState(() {
+                      hasError = true;
+                      errorCode = code;
+                    });
+                    _webViewLog("Status code $code");
+                    pullToRefreshController.endRefreshing();
+                  },
 
-                  if (hasError)
-                    ErrorContainer(webViewController: webViewController),
-                  // progress < 1.0
-                  //     ? LinearProgressIndicator(value: progress,color: PRIMATY_COLOR,)
-                  //     :const SizedBox.shrink(),
-                ],
-              ),
+                  onProgressChanged: onProgressChanged,
+                  onLoadResource: (controller, resource) {},
+                  onDownloadStartRequest: (controller, downloadStartRequest) {
+                    if (isDownloadUrl(downloadStartRequest.url)) {
+                      launchUrl(downloadStartRequest.url);
+                    }
+                  },
+                  onUpdateVisitedHistory: onUpdateVisitedHistory,
+                  // onConsoleMessage: (controller, consoleMessage) {
+                  //   print(consoleMessage);
+
+                  // },
+                ),
+                if (progress < 1) CustomProgressIndicator(progress: progress),
+
+                if (hasError)
+                  ErrorContainer(webViewController: webViewController),
+                // progress < 1.0
+                //     ? LinearProgressIndicator(value: progress,color: PRIMATY_COLOR,)
+                //     :const SizedBox.shrink(),
+              ],
             ),
-          ])),
-    );
+          ),
+        ]));
   }
+
+  void _webViewLog(Object? staus) => log("Web View=> $staus");
 
   void onLongPressHitTestResult(InAppWebViewController controller,
       InAppWebViewHitTestResult hitTestResult) {
-    log("Hit result: $hitTestResult");
     if (hitTestResult.extra == null) return;
 
-    if (hitTestResult.extra!.startsWith("https://shikshahive.com/assets/"))
-      return;
+    if (hitTestResult.extra!.startsWith("${PRIMARY_DOMAIN}assets/")) return;
 
     showModalBottomSheet(
       context: context,
@@ -242,7 +240,6 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
   ];
 
   bool _shouldOpenExternally(Uri uri) {
-    log("Opening externally $uri");
     return allowedExternalDomains
         .any((domain) => uri.toString().startsWith(domain));
   }
@@ -271,14 +268,11 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       NavigationAction navigationAction) async {
     var uri = navigationAction.request.url!;
     if (isDownloadUrl(uri)) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PdfViewer(uri.toString()),
-        ),
-      );
+      _webViewLog("this is download url");
+      context.push("/app/pdf-viewer", extra: '$uri');
       return NavigationActionPolicy.CANCEL;
     }
+
     if (_shouldOpenExternally(uri)) {
       await Utils.launchSafariChrome(uri.toString());
       return NavigationActionPolicy.CANCEL;
@@ -289,15 +283,15 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       return NavigationActionPolicy.CANCEL;
     }
 
-    log("Url: $url");
-    log("Primary Domain: $PRIMARY_DOMAIN");
-    log("${url.startsWith(PRIMARY_DOMAIN)}");
     if (!url.startsWith(PRIMARY_DOMAIN)) {
       Utils.launchUrlToExternalApplication(url);
       return NavigationActionPolicy.CANCEL;
     }
 
-    log("Should open vanda tala");
+    if (Utils.checkIfIsImageLink(uri.toString())) {
+      context.pushNamed("app.imageViewer", extra: uri.toString());
+      return NavigationActionPolicy.CANCEL;
+    }
 
     return NavigationActionPolicy.ALLOW;
   }
@@ -312,7 +306,6 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
   }
 
   void onLoadStart(InAppWebViewController controller, Uri? url) {
-    log("Loading started ==> $url");
     setState(() {
       hasError = false;
       errorCode = null;

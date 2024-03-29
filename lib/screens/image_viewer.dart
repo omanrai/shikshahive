@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:shikshahive/config/const.dart';
 
 class ImageViewer extends StatelessWidget {
   final String src;
@@ -10,6 +12,24 @@ class ImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log("Url from image viewer; $src");
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: PRIMATY_COLOR,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: const Text("View Image"),
+      ),
+      body: SafeArea(
+        
+        child: PhotoView(
+          imageProvider: Image.network(src).image,
+          backgroundDecoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
     return Scaffold(
       body: InteractiveViewer(
         child: SafeArea(
