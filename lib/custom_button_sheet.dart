@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shikshahive/const.dart';
-import 'package:shikshahive/image_viewer.dart';
+import 'package:shikshahive/config/const.dart';
+import 'package:shikshahive/screens/image_viewer.dart';
 import 'package:shikshahive/utils.dart';
 
 class CustomButtonSheet extends StatelessWidget {

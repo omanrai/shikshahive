@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:shikshahive/const.dart';
+import 'package:shikshahive/config/const.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
