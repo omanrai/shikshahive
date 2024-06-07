@@ -41,6 +41,12 @@ class MyRoutes {
         name: "web",
         onExit: (context) async {
           if (webViewController == null) return false;
+
+          var progress = await webViewController?.getProgress();
+          if(progress == null || progress != 100){
+            return false;
+          }
+          
           if (await webViewController?.canGoBack() == true) {
             webViewController?.goBack();
             return false;

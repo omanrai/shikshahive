@@ -1,17 +1,21 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshahive/config/const.dart';
 import 'package:shikshahive/config/routes.dart';
 import 'package:shikshahive/custom_button_sheet.dart';
 import 'package:shikshahive/drawer.dart';
 import 'package:shikshahive/screens/pdf_viewer.dart';
-import 'package:shikshahive/utils.dart';
+import 'package:shikshahive/utils/cache.dart';
+import 'package:shikshahive/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../error_container.dart';
@@ -91,7 +95,10 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
         appBar: AppBar(
           leading: canGoBack
               ? IconButton(
-                  onPressed: () => webViewController?.goBack(),
+                  onPressed: () {
+                    if (progress != 1) return;
+                    webViewController?.goBack();
+                  },
                   icon: const Icon(Icons.arrow_back))
               : IconButton(
                   onPressed: () {
@@ -144,13 +151,6 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
                     webViewController = controller;
                     MyRoutes.webViewController = controller;
                     if (widget.initialRoute != null) {
-                      // if user has link from deep link path
-                      // controller.goTo(
-                      //   historyItem: WebHistoryItem(
-                      //     originalUrl: Uri.parse(
-                      //         "$PRIMARY_DOMAIN${widget.initialRoute}"),
-                      //   ),
-                      // );
                       controller.loadUrl(
                         urlRequest: URLRequest(
                           url: Uri.parse(
@@ -166,18 +166,43 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
                     _webViewLog(
                         "Status: $statusCode Description: $description Url: $url");
                   },
+
                   onLoadStart: onLoadStart,
                   onLongPressHitTestResult: onLongPressHitTestResult,
                   androidOnPermissionRequest: androidOnPermissionRequest,
                   onTitleChanged: onTitleChanged,
                   shouldOverrideUrlLoading: shouldOverrideUrlLoading,
                   onLoadStop: onLoadStop,
-                  onLoadError: (controller, url, code, message) {
+
+                  onLoadError: (controller, uri, code, message) {
                     setState(() {
                       hasError = true;
                       errorCode = code;
                     });
                     _webViewLog("Status code $code");
+                    // if (errorCode == -2) {
+                    //   final isolateToken = RootIsolateToken.instance;
+                    //   final port = ReceivePort();
+                    //   Isolate.spawn(
+                    //       CacheUtils.getCachedDomForOfflineCaching,
+                    //       {
+                    //         "url": uri.toString(),
+                    //         "sendPort": port.sendPort,
+                    //         "isolateToken": isolateToken,
+                    //       },
+                    //       onError: port.sendPort,
+                    //       onExit: port.sendPort);
+
+                    //   port.listen((message) {
+                    //     log(message);
+                    //     controller.loadData(data: message);
+                    //     setState(() {
+                    //       errorCode = null;
+                    //     });
+                    //     port.close();
+                    //   });
+                    // }
+
                     pullToRefreshController.endRefreshing();
                   },
 
@@ -217,7 +242,11 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
 
     showModalBottomSheet(
       context: context,
-      builder: (context) => CustomButtonSheet(hitTestResult.extra!, controller),
+      shape: const BeveledRectangleBorder(),
+      builder: (context) => CustomButtonSheet(
+        hitTestResult.extra!,
+        controller,
+      ),
     );
   }
 
@@ -267,6 +296,7 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       InAppWebViewController controller,
       NavigationAction navigationAction) async {
     var uri = navigationAction.request.url!;
+    log("uri $uri");
     if (isDownloadUrl(uri)) {
       _webViewLog("this is download url");
       context.push("/app/pdf-viewer", extra: '$uri');
@@ -322,9 +352,39 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       this.url = url.toString();
       urlController.text = this.url;
       this.canGoBack = canGoBack;
+      progress = 1;
     });
-    progress = 1;
+    log({
+      "url": url.toString(),
+      "progress": progress,
+    }.toString());
+
     _getSessionID(controller);
+    log(this.errorCode.toString());
+    log(this.hasError.toString());
+    if (hasError) {
+      return;
+    }
+
+    // return;
+    final isolateToken = RootIsolateToken.instance;
+
+    final port = ReceivePort();
+    await Isolate.spawn(
+        CacheUtils.cacheDomForOffileBrowsing,
+        {
+          "sendPort": port.sendPort,
+          "url": url.toString(),
+          "dom": await controller.getHtml(),
+          "isolateToken": isolateToken
+        },
+        onExit: port.sendPort,
+        onError: port.sendPort);
+
+    port.listen((message) {
+      log(message.toString());
+      port.close();
+    });
   }
 
 // Assuming you have an initialized InAppWebViewController

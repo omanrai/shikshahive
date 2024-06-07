@@ -49,7 +49,7 @@ class _IntroState extends State<Intro> {
               ),
             ),
             const Spacer(),
-            SizedBox.square(
+            const SizedBox.square(
                 dimension: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
@@ -61,11 +61,11 @@ class _IntroState extends State<Intro> {
                   "assets/tech_hanger_logo.png",
                   height: 50,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 0,
                 ),
                 RichText(
-                  text: TextSpan(
+                  text: const TextSpan(
                     style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -94,7 +94,7 @@ class _IntroState extends State<Intro> {
               "www.techhanger.shikshahive.com",
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
             ),
-            SizedBox(
+           const SizedBox(
               height: 20,
             )
           ],

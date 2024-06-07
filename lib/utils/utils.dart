@@ -1,11 +1,17 @@
+import 'dart:developer';
+import 'dart:isolate';
+
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshahive/config/const.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'config/my_safari_chrome.dart';
+import '../config/my_safari_chrome.dart';
 
 class Utils {
+
   static Future<NavigationDecision> launchUrlToExternalApplication(
       String url) async {
     final uri = Uri.parse(url);
@@ -41,4 +47,5 @@ class Utils {
       RegExp imageExtensionRegex = RegExp(r'\.(jpg|jpeg|png|gif|bmp|webp)$', caseSensitive: false);
       return imageExtensionRegex.hasMatch(url);
   }
+
 }

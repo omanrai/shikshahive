@@ -3,19 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:shikshahive/config/const.dart';
 import 'package:shikshahive/config/routes.dart';
 import 'package:shikshahive/config/uni_services.dart';
-import 'package:shikshahive/screens/shiksha_hive_home.dart';
-import 'package:shikshahive/screens/intro.dart';
 
-import 'homepage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   UniServices.init();
+  Hive.initFlutter();
 
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);

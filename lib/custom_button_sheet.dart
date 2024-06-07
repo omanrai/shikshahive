@@ -4,7 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shikshahive/config/const.dart';
 import 'package:shikshahive/screens/image_viewer.dart';
-import 'package:shikshahive/utils.dart';
+import 'package:shikshahive/utils/utils.dart';
 
 class CustomButtonSheet extends StatelessWidget {
   final String url;
@@ -47,9 +47,9 @@ class CustomButtonSheet extends StatelessWidget {
                 ));
           },
         ),
-        _customListTile(
+      if(!Utils.checkIfIsImageLink(url) )  _customListTile(
           icon: Icons.arrow_forward_ios_rounded,
-          title: "Continue to Page",
+          title: "Continue",
           onTap: () {
             Navigator.pop(context);
             controller.loadUrl(
