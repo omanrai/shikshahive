@@ -1,17 +1,13 @@
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'config/const.dart';
 import 'config/routes.dart';
-import 'config/uni_services.dart';
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   // UniServices.init();
 
   try {
@@ -24,7 +20,6 @@ Future<void> main() async {
   } catch (e) {
     log(e.toString());
   }
-
   runApp(MyApp());
 }
 

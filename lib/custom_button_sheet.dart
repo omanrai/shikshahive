@@ -25,7 +25,7 @@ class CustomButtonSheet extends StatelessWidget {
             // Share.share(url);
           },
         ),
-        if (!url.startsWith("$PRIMARY_DOMAIN/assets/") && !url.endsWith(".png"))
+        if (!url.startsWith("$PRIMARY_DOMAIN/assets/") && !(Utils.checkIfIsImageLink(url)))
           _customListTile(
             icon: Icons.remove_red_eye_rounded,
             title: "View on Browser",
@@ -34,7 +34,7 @@ class CustomButtonSheet extends StatelessWidget {
               Utils.launchUrlToExternalApplication(url);
             },
           ),
-        if (url.endsWith(".png"))
+        if (Utils.checkIfIsImageLink(url))
           _customListTile(
             icon: Icons.image,
             title: "View Image",
