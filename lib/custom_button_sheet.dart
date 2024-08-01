@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-// import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'config/const.dart';
 import 'screens/image_viewer.dart';
@@ -22,7 +22,7 @@ class CustomButtonSheet extends StatelessWidget {
           title: "Share Link",
           onTap: () {
             Navigator.pop(context);
-            // Share.share(url);
+            Share.share(url);
           },
         ),
         if (!url.startsWith("$PRIMARY_DOMAIN/assets/") && !(Utils.checkIfIsImageLink(url)))
