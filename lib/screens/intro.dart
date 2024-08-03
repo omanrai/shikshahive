@@ -71,12 +71,12 @@ class _IntroState extends State<Intro> {
                     ),
                     children: [
                       TextSpan(
-                          text: " Tech ",
-                          style: TextStyle(color: Colors.black)),
+                          text: " Saino ",
+                          style: TextStyle(color: Colors.purple)),
                       TextSpan(
-                          text: "Hanger",
+                          text: "Tech",
                           style: TextStyle(
-                            color: Colors.purple,
+                            color: Colors.black,
                           )),
                     ],
                   ),
@@ -84,13 +84,13 @@ class _IntroState extends State<Intro> {
               ],
             ),
             const Text(
-              "Developed By Tech Hanger Team",
+              "Developed By Saino Tech Team",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const Text(
-              "www.techhanger.shikshahive.com",
+              "www.sainotech.com",
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
             ),
            const SizedBox(

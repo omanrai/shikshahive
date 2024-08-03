@@ -1,4 +1,4 @@
-package com.example.shikhahive_webview
+package com.sainotech.shikshahive
 
 import io.flutter.embedding.android.FlutterActivity
 
