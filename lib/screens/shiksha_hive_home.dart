@@ -62,7 +62,7 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
     super.initState();
 
     pullToRefreshController = PullToRefreshController(
-      options: PullToRefreshOptions(
+      settings: PullToRefreshSettings(
         color: Colors.blue,
       ),
       onRefresh: () async {
@@ -172,10 +172,6 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
                     }
                   },
                   onUpdateVisitedHistory: onUpdateVisitedHistory,
-                  // onConsoleMessage: (controller, consoleMessage) {
-                  //   print(consoleMessage);
-
-                  // },
                 ),
                 if (progress < 1) CustomProgressIndicator(progress: progress),
 
@@ -254,7 +250,7 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       InAppWebViewController controller,
       NavigationAction navigationAction) async {
     var uri = navigationAction.request.url!;
-    log("uri $uri");
+
     if (isDownloadUrl(uri)) {
       _webViewLog("this is download url");
       context.push("/app/pdf-viewer", extra: '$uri');
@@ -312,8 +308,7 @@ class _ShikshaHiveHomeState extends State<ShikshaHiveHome> {
       this.canGoBack = canGoBack;
       progress = 1;
     });
-    log(this.errorCode.toString());
-    log(this.hasError.toString());
+ 
     if (hasError) {
       return;
     }

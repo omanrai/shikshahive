@@ -51,7 +51,7 @@ class MyRoutes {
             webViewController?.goBack();
             return false;
           }
-          var confirmed = await showDialog<bool>(
+          final confirmed = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Do you want to exit?'),

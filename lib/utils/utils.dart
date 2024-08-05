@@ -32,7 +32,7 @@ class Utils {
       options: ChromeSafariBrowserClassOptions(
           android: AndroidChromeCustomTabsOptions(
         toolbarBackgroundColor: PRIMATY_COLOR,
-        isSingleInstance: true,
+        isSingleInstance: false,
         showTitle: true,
         shareState: CustomTabsShareState.SHARE_STATE_ON,
         instantAppsEnabled: true,
